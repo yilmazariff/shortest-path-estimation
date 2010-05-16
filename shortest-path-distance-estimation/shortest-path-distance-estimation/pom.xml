@@ -3,4 +3,43 @@
   <groupId>ee.ut.algorithmics.riivo</groupId>
   <artifactId>shortest-path-distance-estimation</artifactId>
   <version>0.0.1-SNAPSHOT</version>
+  <build>
+  	<extensions>
+  	</extensions>
+  	<plugins>
+  	
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.0.2</version>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
+  	</plugins>
+  </build>
+  <dependencies>
+  	<dependency>
+  		<groupId>com.googlecode</groupId>
+  		<artifactId>annas</artifactId>
+  		<scope>system</scope>
+  		<optional>true</optional>
+  		<version>1.00.</version>
+  		<systemPath>C:\work\workspace\shortest-path-distance-estimation\external\annas-21-02-10.jar</systemPath>
+  	</dependency>
+  	<dependency>
+  		<groupId>jgraph</groupId>
+  		<artifactId>jgraph</artifactId>
+  		<version>5.13.0.0</version>
+  	</dependency>
+  	<dependency>
+  		<groupId>jgrapht</groupId>
+  		<artifactId>jgrapht</artifactId>
+  		<version>0.8.2</version>
+  		<scope>system</scope>
+  		<optional>true</optional>
+  		<systemPath>C:\work\workspace\shortest-path-distance-estimation\external\jgrapht-jdk1.6.jar</systemPath>  		
+  	</dependency>
+  </dependencies>
 </project>
