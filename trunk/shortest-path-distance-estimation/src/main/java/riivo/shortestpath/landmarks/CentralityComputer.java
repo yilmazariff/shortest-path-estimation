@@ -1,3 +1,4 @@
+package riivo.shortestpath.landmarks;
 /* ==========================================
   CentralityComputer : a Java centrality measures library
   ==========================================
