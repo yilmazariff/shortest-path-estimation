@@ -20,6 +20,7 @@
   	</plugins>
   </build>
   <dependencies>
+  	<!--  
   	<dependency>
   		<groupId>com.googlecode</groupId>
   		<artifactId>annas</artifactId>
@@ -32,8 +33,14 @@
   		<groupId>jgraph</groupId>
   		<artifactId>jgraph</artifactId>
   		<version>5.13.0.0</version>
-  	</dependency>
+  		<scope>system</scope>
+  		<optional>true</optional>
+  		<systemPath>C:\work\workspace\shortest-path-distance-estimation\external\jgraph.jar</systemPath>    		
+  	</dependency>  		
   	<dependency>
+  
+  		-->
+	<dependency>
   		<groupId>jgrapht</groupId>
   		<artifactId>jgrapht</artifactId>
   		<version>0.8.2</version>
@@ -41,5 +48,46 @@
   		<optional>true</optional>
   		<systemPath>C:\work\workspace\shortest-path-distance-estimation\external\jgrapht-jdk1.6.jar</systemPath>  		
   	</dependency>
+	<dependency>
+		<groupId>jgraph</groupId>
+		<artifactId>jgraph</artifactId>
+		<version>5.13.0.0</version>
+	</dependency>
+	<dependency>
+		<groupId>jfree</groupId>
+		<artifactId>jfreechart</artifactId>
+		<version>1.0.13</version>
+	</dependency>
+	<dependency>
+		<groupId>jfree</groupId>
+		<artifactId>jfreechart-swt</artifactId>
+		<version>1.0.9</version>
+	</dependency>
+	<dependency>
+		<groupId>jfree</groupId>
+		<artifactId>jcommon</artifactId>
+		<version>1.0.15</version>
+	</dependency>
+	<dependency>
+		<groupId>commons-collections</groupId>
+		<artifactId>commons-collections</artifactId>
+		<version>20040616</version>
+	</dependency>
+	<dependency>
+		<groupId>commons-lang</groupId>
+		<artifactId>commons-lang</artifactId>
+		<version>2.5</version>
+	</dependency>
+	<dependency>
+		<groupId>commons-math</groupId>
+		<artifactId>commons-math</artifactId>
+		<version>1.2</version>
+	</dependency> 
+  	<!-- 
+  	<dependency> 
+  		<groupId>org.jgrapht</groupId>
+  		<artifactId>jgrapht-jdk1.5</artifactId>
+  		<version>0.7.3</version>
+  	</dependency> -->
   </dependencies>
 </project>
