@@ -8,8 +8,6 @@ public class MyVertex {
 
   private final HashMap<MyVertex, Integer> landMarkDistances = new HashMap<MyVertex, Integer>();
 
-  public volatile int cnt = 0;
-
   public MyVertex(int id) {
     this.id = id;
   }
@@ -20,6 +18,11 @@ public class MyVertex {
 
   public HashMap<MyVertex, Integer> getLandMarkDistances() {
     return landMarkDistances;
+  }
+
+  @Override
+  public String toString() {
+    return "MyVertex [id=" + id + "]";
   }
 
   @Override

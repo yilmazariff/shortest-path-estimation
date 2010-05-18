@@ -19,7 +19,7 @@ public final class GraphDistanceTest {
 
   private static final long RANDOM_SEED = 13371337l;
   static int LANDMARKS = 20;
-  static int TEST_SET_SIZE = 10;
+  static int TEST_SET_SIZE = 20;
 
   private static final Logger log = Logger.getLogger(GraphDistanceTest.class);
 
@@ -34,7 +34,6 @@ public final class GraphDistanceTest {
     log.debug("indexing done");
     log.info("Edges:" + graph.edgeSet().size());
     log.info("Vertices:" + graph.vertexSet().size());
-    info(graph);
 
     evaluate(graph);
     // jclean(graph);
@@ -59,14 +58,15 @@ public final class GraphDistanceTest {
     HashSet<MyVertex> testSet = pickRanomVertices(graph, TEST_SET_SIZE);
     for (MyVertex from : testSet) {
       for (MyVertex to : testSet) {
-        double realLength = MyShortestPath.distance(graph, from, to);
-        double estimated = estimate(from, to);
-        double error = Math.abs(estimated - realLength) / realLength;
-        stats.addValue(error);
+        if (to.getId() > from.getId()) {
+          double realLength = MyShortestPath.distance(graph, from, to);
+          double estimated = estimate(from, to);
+          double error = Math.abs(estimated - realLength) / realLength;
+          stats.addValue(error);
+        }
 
       }
     }
-    System.out.println(stats.getValues());
     log.debug("mean error " + stats.getMean());
   }
 
@@ -74,11 +74,7 @@ public final class GraphDistanceTest {
     Set<MyVertex> keySet = from.getLandMarkDistances().keySet();
     Set<MyVertex> keySet2 = to.getLandMarkDistances().keySet();
     if (keySet.size() != LANDMARKS || keySet2.size() != LANDMARKS) {
-      log.error("---------------------------------");
-      log.error(from + ": " + keySet);
-      log.error(to + ": " + keySet2);
-      log.error("---------------------------------");
-      // throw new RuntimeException("wrong");
+      throw new RuntimeException("wrong");
     }
     double max = Double.MAX_VALUE;
 
@@ -105,10 +101,7 @@ public final class GraphDistanceTest {
 
   public static void index(SimpleGraph<MyVertex, MyEdge> graph, LandmarkChooser chooser) {
     HashSet<MyVertex> landmarks = chooser.choose(graph, LANDMARKS);
-    log.debug(landmarks);
-    log.debug(landmarks.size());
     for (MyVertex myVertex : landmarks) {
-      System.out.println("going:" + myVertex);
       bfs(graph, myVertex);
     }
   }
@@ -118,7 +111,6 @@ public final class GraphDistanceTest {
     Set<MyVertex> visited = new HashSet<MyVertex>();
     queue.add(start);
     breadth(graph, start, queue, visited, 0);
-    System.out.println("visited:" + visited.size());
   }
 
   private static void breadth(final SimpleGraph<MyVertex, MyEdge> graph,
@@ -132,22 +124,7 @@ public final class GraphDistanceTest {
     while (next != null) {
       if (!visited.contains(next)) {
         visited.add(next);
-        if (next.getId() == 5705) {
-          System.out.println(next.getLandMarkDistances().size() + "---------------");
-          System.out.println("start:" + start);
-          System.out.println("next:" + next);
-          System.out.println("count:" + next.cnt);
-          System.out.println("map:" + next.getLandMarkDistances());
-
-          System.out.println(level);
-        }
         next.getLandMarkDistances().put(start, level);
-
-        next.cnt += 1;
-        if (next.getId() == 5705) {
-          System.out.println(next.getLandMarkDistances().size() + "XXXXXX");
-          System.out.println("\n\n\n");
-        }
 
         Set<MyEdge> edgesOf = graph.edgesOf(next);
         for (MyEdge myEdge : edgesOf) {
