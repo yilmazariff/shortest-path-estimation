@@ -41,7 +41,8 @@ public class MyShortestPath {
         }
         Set<MyEdge> edgesOf = graph.edgesOf(next);
         for (MyEdge myEdge : edgesOf) {
-          MyVertex target = myEdge.getSource().equals(next) ? myEdge.getTarget() : myEdge.getSource();
+          MyVertex target =
+          graph.getEdgeSource(myEdge).equals(next) ? graph.getEdgeTarget(myEdge) : graph.getEdgeSource(myEdge);
           nextLevel.add(target);
         }
 
