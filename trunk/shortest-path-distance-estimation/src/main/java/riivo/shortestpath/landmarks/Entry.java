@@ -1,6 +1,6 @@
 package riivo.shortestpath.landmarks;
 
-import org.apache.commons.lang.NumberUtils;
+import org.apache.commons.lang.math.NumberUtils;
 
 import riivo.shortestpath.graph.MyVertex;
 

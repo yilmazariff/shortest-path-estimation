@@ -16,11 +16,12 @@ import riivo.shortestpath.graph.BreadthFirstSearchWithDistance.Callable;
 
 public class CentralityLandmarkChooser implements LandmarkChooser {
 
-  private static final int FACTOR = 10;
+  private static final int SEED_SIZE = 100;
 
   @Override
   public HashSet<MyVertex> choose(SimpleGraph<MyVertex, MyEdge> graph, int n) {
-    final HashSet<MyVertex> vertexSet = new RandomLandmarkChooser().choose(graph, Math.min(n * FACTOR, graph.vertexSet().size()));
+    final HashSet<MyVertex> vertexSet =
+    new RandomLandmarkChooser().choose(graph, Math.min(SEED_SIZE, graph.vertexSet().size()));
 
     final List<Entry> centralityDegree = new ArrayList<Entry>();
 
@@ -44,5 +45,10 @@ public class CentralityLandmarkChooser implements LandmarkChooser {
       result.add(iterator.next().getVertex());
     }
     return result;
+  }
+
+  @Override
+  public String getName() {
+    return "Centrality";
   }
 }

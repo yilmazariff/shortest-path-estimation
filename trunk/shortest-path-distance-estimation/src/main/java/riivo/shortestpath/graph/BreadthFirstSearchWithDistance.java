@@ -5,9 +5,12 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.jgrapht.graph.SimpleGraph;
 
 public class BreadthFirstSearchWithDistance {
+
+  private static final Logger log = Logger.getLogger(BreadthFirstSearchWithDistance.class);
 
   public static interface Callable {
 
@@ -35,7 +38,6 @@ public class BreadthFirstSearchWithDistance {
         visited.add(next);
 
         callable.call(graph, start, next, level);
-        // next.getLandMarkDistances().put(start, level);
 
         Set<MyEdge> edgesOf = graph.edgesOf(next);
         for (MyEdge myEdge : edgesOf) {
