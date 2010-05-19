@@ -1,27 +1,26 @@
 package riivo.shortespath;
 
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.Random;
 import java.util.Set;
 
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.apache.log4j.Logger;
 import org.jgrapht.graph.SimpleGraph;
 
+import riivo.shortestpath.graph.BreadthFirstSearchWithDistance;
 import riivo.shortestpath.graph.MyEdge;
 import riivo.shortestpath.graph.MyVertex;
-import riivo.shortestpath.landmarks.DegreeBasedLandmarkChooser;
+import riivo.shortestpath.graph.BreadthFirstSearchWithDistance.Callable;
+import riivo.shortestpath.landmarks.CentralityLandmarkChooser;
 import riivo.shortestpath.landmarks.LandmarkChooser;
+import riivo.shortestpath.landmarks.RandomLandmarkChooser;
 
-public final class GraphDistanceTest {
+public final class GraphDistanceEstimation {
 
-  private static final long RANDOM_SEED = 13371337l;
-  static int LANDMARKS = 20;
-  static int TEST_SET_SIZE = 20;
+  static int LANDMARKS = 10;
+  static int TEST_SET_SIZE = 10;
 
-  private static final Logger log = Logger.getLogger(GraphDistanceTest.class);
+  private static final Logger log = Logger.getLogger(GraphDistanceEstimation.class);
 
   /**
    * @param args
@@ -30,7 +29,9 @@ public final class GraphDistanceTest {
     log.debug("start!");
     SimpleGraph<MyVertex, MyEdge> graph = GraphReader.run();
     log.debug("graph done");
-    index(graph, new DegreeBasedLandmarkChooser());
+    // index(graph, new RandomLandmarkChooser());
+    // index(graph, new DegreeBasedLandmarkChooser());
+    index(graph, new CentralityLandmarkChooser());
     log.debug("indexing done");
     log.info("Edges:" + graph.edgeSet().size());
     log.info("Vertices:" + graph.vertexSet().size());
@@ -70,6 +71,10 @@ public final class GraphDistanceTest {
     log.debug("mean error " + stats.getMean());
   }
 
+  private static HashSet<MyVertex> pickRanomVertices(SimpleGraph<MyVertex, MyEdge> graph, int tESTSETSIZE) {
+    return new RandomLandmarkChooser().choose(graph, tESTSETSIZE);
+  }
+
   private static double estimate(MyVertex from, MyVertex to) {
     Set<MyVertex> keySet = from.getLandMarkDistances().keySet();
     Set<MyVertex> keySet2 = to.getLandMarkDistances().keySet();
@@ -102,64 +107,14 @@ public final class GraphDistanceTest {
   public static void index(SimpleGraph<MyVertex, MyEdge> graph, LandmarkChooser chooser) {
     HashSet<MyVertex> landmarks = chooser.choose(graph, LANDMARKS);
     for (MyVertex myVertex : landmarks) {
-      bfs(graph, myVertex);
-    }
-  }
+      BreadthFirstSearchWithDistance.bfs(graph, new Callable() {
 
-  public static void bfs(SimpleGraph<MyVertex, MyEdge> graph, MyVertex start) {
-    Queue<MyVertex> queue = new LinkedList<MyVertex>();
-    Set<MyVertex> visited = new HashSet<MyVertex>();
-    queue.add(start);
-    breadth(graph, start, queue, visited, 0);
-  }
-
-  private static void breadth(final SimpleGraph<MyVertex, MyEdge> graph,
-                              final MyVertex start,
-                              final Queue<MyVertex> queue,
-                              final Set<MyVertex> visited,
-                              int level) {
-
-    MyVertex next = queue.poll();
-    Queue<MyVertex> nextLevel = new LinkedList<MyVertex>();
-    while (next != null) {
-      if (!visited.contains(next)) {
-        visited.add(next);
-        next.getLandMarkDistances().put(start, level);
-
-        Set<MyEdge> edgesOf = graph.edgesOf(next);
-        for (MyEdge myEdge : edgesOf) {
-          MyVertex target =
-          graph.getEdgeSource(myEdge).equals(next) ? graph.getEdgeTarget(myEdge) : graph.getEdgeSource(myEdge);
-          nextLevel.add(target);
+        @Override
+        public void call(SimpleGraph<MyVertex, MyEdge> graph, MyVertex start, MyVertex next, int level) {
+          next.getLandMarkDistances().put(start, level);
         }
-
-      }
-      next = queue.poll();
+      }, myVertex);
     }
-    if (!nextLevel.isEmpty())
-      breadth(graph, start, nextLevel, visited, level + 1);
-  }
-
-  public static HashSet<MyVertex> pickRanomVertices(SimpleGraph<MyVertex, MyEdge> graph, int lANDMARKS2) {
-    final Set<MyVertex> vertexSet = graph.vertexSet();
-    // find more determinisic solution, if O(landmarks)
-    HashSet<MyVertex> landmarks = new HashSet<MyVertex>();
-
-    Random random = new Random(RANDOM_SEED);
-    while (landmarks.size() < lANDMARKS2) {
-      int size = vertexSet.size();
-      int item = random.nextInt(size);
-      int i = 0;
-      inner: for (MyVertex selected : vertexSet) {
-        if (i == item) {
-          landmarks.add(selected);
-          break inner;
-        }
-        i = i + 1;
-      }
-    }
-    return landmarks;
-
   }
 
 }

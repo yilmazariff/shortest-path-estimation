@@ -1,33 +1,45 @@
 package riivo.shortestpath.landmarks;
 
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
+import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.jgrapht.graph.SimpleGraph;
 
+import riivo.shortestpath.graph.BreadthFirstSearchWithDistance;
 import riivo.shortestpath.graph.MyEdge;
 import riivo.shortestpath.graph.MyVertex;
+import riivo.shortestpath.graph.BreadthFirstSearchWithDistance.Callable;
 
 public class CentralityLandmarkChooser implements LandmarkChooser {
 
+  private static final int FACTOR = 10;
+
   @Override
   public HashSet<MyVertex> choose(SimpleGraph<MyVertex, MyEdge> graph, int n) {
-    CentralityComputer<MyVertex, MyEdge> computer = new CentralityComputer<MyVertex, MyEdge>(graph);
-    Set<MyVertex> vertexSet = graph.vertexSet();
-    List<Entry> list = new ArrayList<Entry>();
-    for (MyVertex myVertex : vertexSet) {
-      Double findClosenessOf = computer.findClosenessOf(myVertex);
-      list.add(new Entry(myVertex, findClosenessOf));
+    final HashSet<MyVertex> vertexSet = new RandomLandmarkChooser().choose(graph, Math.min(n * FACTOR, graph.vertexSet().size()));
+
+    final List<Entry> centralityDegree = new ArrayList<Entry>();
+
+    for (final MyVertex myVertex : vertexSet) {
+      final DescriptiveStatistics stats = new DescriptiveStatistics();
+      BreadthFirstSearchWithDistance.bfs(graph, new Callable() {
+
+        @Override
+        public void call(SimpleGraph<MyVertex, MyEdge> graph, MyVertex start, MyVertex next, int level) {
+          stats.addValue(level);
+        }
+      }, myVertex);
+      centralityDegree.add(new Entry(myVertex, stats.getMean()));
+
     }
-    Collections.sort(list);
-    Collections.reverse(list);
-    HashSet<MyVertex> result = new HashSet<MyVertex>();
-    Iterator<Entry> iterator = list.iterator();
+
+    Collections.sort(centralityDegree);
+    final HashSet<MyVertex> result = new HashSet<MyVertex>();
+    final Iterator<Entry> iterator = centralityDegree.iterator();
     while (result.size() < n) {
       result.add(iterator.next().getVertex());
     }
