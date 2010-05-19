@@ -1,4 +1,4 @@
-package riivo.shortespath;
+package riivo.shortestpath.graph;
 
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -7,9 +7,12 @@ import java.util.Set;
 
 import org.jgrapht.graph.SimpleGraph;
 
-import riivo.shortestpath.graph.MyEdge;
-import riivo.shortestpath.graph.MyVertex;
 
+/**
+ * Finds shortest path by breadth first iteration. Only suitable for unweighted graphs
+ * @author Riivo
+ *
+ */
 public class MyShortestPath {
   public static double distance(SimpleGraph<MyVertex, MyEdge> graph, MyVertex start, MyVertex end) {
     Queue<MyVertex> queue = new LinkedList<MyVertex>();
@@ -17,7 +20,7 @@ public class MyShortestPath {
     queue.add(start);
     int dist = breadth(graph, start, end, queue, visited, 0);
     if (dist == -1) {
-      throw new IllegalArgumentException("target not found");
+      throw new IllegalArgumentException("Path from " + start + " to : " + end + " not found!!");
     }
     return dist * 1.0;
   }

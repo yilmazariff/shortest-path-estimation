@@ -38,4 +38,9 @@ public class RandomLandmarkChooser implements LandmarkChooser {
     return landmarks;
   }
 
+  @Override
+  public String getName() {
+    return "random";
+  }
+
 }
