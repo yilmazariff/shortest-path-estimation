@@ -14,14 +14,15 @@ import riivo.shortestpath.graph.MyEdge;
 import riivo.shortestpath.graph.MyVertex;
 import riivo.shortestpath.graph.BreadthFirstSearchWithDistance.Callable;
 
-public class CentralityLandmarkChooser implements LandmarkChooser {
+public class ConstrainedCentralityChooser implements LandmarkChooser {
 
-  private static final int SEED_SIZE = 40;
+  private static final int SEED = 500;
+  private static final double MIN_DISTANCE = 2.0;
 
   @Override
   public HashSet<MyVertex> choose(SimpleGraph<MyVertex, MyEdge> graph, int n) {
     final HashSet<MyVertex> vertexSet =
-    new RandomLandmarkChooser().choose(graph, Math.min(n * SEED_SIZE, graph.vertexSet().size()));
+    new RandomLandmarkChooser().choose(graph, Math.min(SEED, graph.vertexSet().size()));
 
     final List<Entry> centralityDegree = new ArrayList<Entry>();
 
@@ -40,16 +41,37 @@ public class CentralityLandmarkChooser implements LandmarkChooser {
 
     Collections.sort(centralityDegree);
 
-    final HashSet<MyVertex> result = new HashSet<MyVertex>();
-    final Iterator<Entry> iterator = centralityDegree.iterator();
-    while (result.size() < n) {
-      result.add(iterator.next().getVertex());
+    final HashSet<MyVertex> choosed = new HashSet<MyVertex>();
+
+    outer: for (Iterator<Entry> iterator2 = centralityDegree.iterator(); iterator2.hasNext();) {
+      Entry poll = iterator2.next();
+      final MyVertex underConsideration = poll.getVertex();
+      boolean suitable = true;
+      inner: for (MyVertex myVertex : choosed) {
+        double distance = BreadthFirstSearchWithDistance.distance(graph, underConsideration, myVertex);
+        if (distance < MIN_DISTANCE) {
+          System.out.println("!" + distance + " ignore:" + poll);
+
+          suitable = false;
+          break inner;
+        }
+      }
+      if (suitable) {
+        System.out.println(poll);
+        choosed.add(underConsideration);
+      }
+      if (choosed.size() >= n) {
+        break outer;
+      }
+
     }
-    return result;
+
+    return choosed;
   }
 
   @Override
   public String getName() {
-    return "Centrality";
+    return "ConstrainedCentraluty" + MIN_DISTANCE + "SEED_" + SEED;
   }
+
 }
