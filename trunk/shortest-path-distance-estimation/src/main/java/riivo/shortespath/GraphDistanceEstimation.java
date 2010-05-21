@@ -7,6 +7,7 @@ import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.apache.log4j.Logger;
 import org.jgrapht.graph.SimpleGraph;
 
+import riivo.shortespath.util.ThreadPool;
 import riivo.shortestpath.graph.BreadthFirstSearchWithDistance;
 import riivo.shortestpath.graph.MyEdge;
 import riivo.shortestpath.graph.MyVertex;
@@ -19,6 +20,8 @@ import riivo.shortestpath.landmarks.LandmarkChooser;
 import riivo.shortestpath.landmarks.RandomLandmarkChooser;
 
 public final class GraphDistanceEstimation {
+
+  public static final int TP_SIZE = 3;
 
   private static final Logger log = Logger.getLogger(GraphDistanceEstimation.class);
 
@@ -78,31 +81,44 @@ public final class GraphDistanceEstimation {
     log.debug("\t-cleaning done");
   }
 
-  private double evaluate(SimpleGraph<MyVertex, MyEdge> graph) {
-    DescriptiveStatistics all = new DescriptiveStatistics();
-    DescriptiveStatistics estimation = new DescriptiveStatistics();
-    DescriptiveStatistics validation = new DescriptiveStatistics();
+  private double evaluate(final SimpleGraph<MyVertex, MyEdge> graph) {
+    final DescriptiveStatistics all = new DescriptiveStatistics();
+    final DescriptiveStatistics estimation = new DescriptiveStatistics();
+    final DescriptiveStatistics validation = new DescriptiveStatistics();
     for (int i = 0; i < iterations; i++) {
       log.debug("\t start new evaluation iteration");
-      DescriptiveStatistics stats = new DescriptiveStatistics();
+      final DescriptiveStatistics stats = new DescriptiveStatistics();
       HashSet<MyVertex> testSet = pickRanomVertices(graph, testSetSize);
-      for (MyVertex from : testSet) {
-        for (MyVertex to : testSet) {
+      ThreadPool tp = new ThreadPool(TP_SIZE);
+      for (final MyVertex from : testSet) {
+        for (final MyVertex to : testSet) {
           if (to.getId() > from.getId()) {
+            tp.runTask(new Runnable() {
 
-            long valStart = System.currentTimeMillis();
-            double realLength = BreadthFirstSearchWithDistance.distance(graph, from, to);
-            validation.addValue(System.currentTimeMillis() - valStart);
+              @Override
+              public void run() {
+                long valStart = System.currentTimeMillis();
+                double realLength = BreadthFirstSearchWithDistance.distance(graph, from, to);
+                long timeTakenReal = System.currentTimeMillis() - valStart;
 
-            long estimationStart = System.currentTimeMillis();
-            double estimated = estimate(from, to);
-            estimation.addValue(System.currentTimeMillis() - estimationStart);
+                long estimationStart = System.currentTimeMillis();
+                double estimated = estimate(from, to);
+                long timeTakenEstimation = System.currentTimeMillis() - estimationStart;
 
-            double error = Math.abs(estimated - realLength) / realLength;
-            stats.addValue(error);
+                double error = Math.abs(estimated - realLength) / realLength;
+                synchronized (stats) {
+                  estimation.addValue(timeTakenEstimation);
+                  validation.addValue(timeTakenReal);
+                  stats.addValue(error);
+                }
+              }
+
+            });
+
           }
         }
       }
+      tp.join();
       all.addValue(stats.getMean());
     }
     log.debug("\t\t average, validation:" + validation.getMean() + ", estimation:" + estimation.getMean());
@@ -142,20 +158,35 @@ public final class GraphDistanceEstimation {
     return max;
   }
 
-  private void index(SimpleGraph<MyVertex, MyEdge> graph, LandmarkChooser chooser) {
+  private void index(final SimpleGraph<MyVertex, MyEdge> graph, LandmarkChooser chooser) {
     HashSet<MyVertex> landmarks = chooser.choose(graph, landmarkCount);
     int i = 0;
-    for (MyVertex myVertex : landmarks) {
+    ThreadPool tp = new ThreadPool(TP_SIZE);
+    for (final MyVertex myVertex : landmarks) {
+
       i++;
-      BreadthFirstSearchWithDistance.bfs(graph, new Callable() {
+      final Integer j = new Integer(i);
+      Runnable r = new Runnable() {
 
         @Override
-        public void call(SimpleGraph<MyVertex, MyEdge> graph, MyVertex start, MyVertex next, int level) {
-          next.getLandMarkDistances().put(start, level);
+        public void run() {
+          log.debug("running " + j);
+          BreadthFirstSearchWithDistance.bfs(graph, new Callable() {
+
+            @Override
+            public void call(SimpleGraph<MyVertex, MyEdge> graph, MyVertex start, MyVertex next, int level) {
+              // next.getLandMarkDistances().put(start, level);
+              next.put(start, level);
+            }
+          }, myVertex);
+          // double percent = 1. * j / landmarkCount * 100.0;
+          log.debug("\tdone " + j + " of indexing");
         }
-      }, myVertex);
-      double percent = 1. * i / landmarkCount * 100.0;
-      log.debug("\tdone " + percent + "% of indexing");
+      };
+
+      tp.runTask(r);
     }
+    tp.join();
+
   }
 }

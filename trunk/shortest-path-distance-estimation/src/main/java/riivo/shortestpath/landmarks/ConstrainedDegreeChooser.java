@@ -34,14 +34,12 @@ public class ConstrainedDegreeChooser implements LandmarkChooser {
       inner: for (MyVertex myVertex : choosed) {
         double distance = BreadthFirstSearchWithDistance.distance(graph, underConsideration, myVertex);
         if (distance < MIN_DISTANCE) {
-          System.out.println("!" + distance + " ignore:" + poll);
 
           suitable = false;
           break inner;
         }
       }
       if (suitable) {
-        System.out.println(poll);
         choosed.add(underConsideration);
       }
       if (choosed.size() >= n) {
