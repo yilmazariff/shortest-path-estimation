@@ -12,6 +12,8 @@ import riivo.shortestpath.graph.MyEdge;
 import riivo.shortestpath.graph.MyVertex;
 import riivo.shortestpath.graph.BreadthFirstSearchWithDistance.Callable;
 import riivo.shortestpath.landmarks.CentralityLandmarkChooser;
+import riivo.shortestpath.landmarks.ConstrainedCentralityChooser;
+import riivo.shortestpath.landmarks.ConstrainedDegreeChooser;
 import riivo.shortestpath.landmarks.DegreeBasedLandmarkChooser;
 import riivo.shortestpath.landmarks.LandmarkChooser;
 import riivo.shortestpath.landmarks.RandomLandmarkChooser;
@@ -51,7 +53,8 @@ public final class GraphDistanceEstimation {
     log.debug("graph done");
 
     final LandmarkChooser[] choosers =
-    new LandmarkChooser[] { new RandomLandmarkChooser(), new DegreeBasedLandmarkChooser(),
+    new LandmarkChooser[] { new ConstrainedDegreeChooser(), new ConstrainedCentralityChooser(),
+                           new RandomLandmarkChooser(), new DegreeBasedLandmarkChooser(),
                            new CentralityLandmarkChooser() };
     for (LandmarkChooser landmarkChooser : choosers) {
       log.debug("starting: " + landmarkChooser.getName());
