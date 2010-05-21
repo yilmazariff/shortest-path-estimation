@@ -9,6 +9,8 @@ import java.util.List;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.jgrapht.graph.SimpleGraph;
 
+import riivo.shortespath.GraphDistanceEstimation;
+import riivo.shortespath.util.ThreadPool;
 import riivo.shortestpath.graph.BreadthFirstSearchWithDistance;
 import riivo.shortestpath.graph.MyEdge;
 import riivo.shortestpath.graph.MyVertex;
@@ -19,24 +21,34 @@ public class CentralityLandmarkChooser implements LandmarkChooser {
   private static final int SEED_SIZE = 40;
 
   @Override
-  public HashSet<MyVertex> choose(SimpleGraph<MyVertex, MyEdge> graph, int n) {
+  public HashSet<MyVertex> choose(final SimpleGraph<MyVertex, MyEdge> graph, int n) {
     final HashSet<MyVertex> vertexSet =
     new RandomLandmarkChooser().choose(graph, Math.min(n * SEED_SIZE, graph.vertexSet().size()));
 
     final List<Entry> centralityDegree = new ArrayList<Entry>();
-
+    ThreadPool tp = new ThreadPool(GraphDistanceEstimation.TP_SIZE);
     for (final MyVertex myVertex : vertexSet) {
-      final DescriptiveStatistics stats = new DescriptiveStatistics();
-      BreadthFirstSearchWithDistance.bfs(graph, new Callable() {
+      tp.runTask(new Runnable() {
 
         @Override
-        public void call(SimpleGraph<MyVertex, MyEdge> graph, MyVertex start, MyVertex next, int level) {
-          stats.addValue(level);
-        }
-      }, myVertex);
-      centralityDegree.add(new Entry(myVertex, stats.getMean()));
+        public void run() {
+          final DescriptiveStatistics stats = new DescriptiveStatistics();
+          BreadthFirstSearchWithDistance.bfs(graph, new Callable() {
 
+            @Override
+            public void call(SimpleGraph<MyVertex, MyEdge> graph, MyVertex start, MyVertex next, int level) {
+              stats.addValue(level);
+            }
+          }, myVertex);
+          synchronized (centralityDegree) {
+            centralityDegree.add(new Entry(myVertex, stats.getMean()));
+          }
+
+        }
+      });
     }
+
+    tp.join();
 
     Collections.sort(centralityDegree);
 

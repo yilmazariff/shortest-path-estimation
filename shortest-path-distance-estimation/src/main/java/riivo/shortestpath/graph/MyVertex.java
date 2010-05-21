@@ -20,6 +20,12 @@ public class MyVertex {
     return landMarkDistances;
   }
 
+  public void put(MyVertex start, int level) {
+    synchronized (landMarkDistances) {
+      landMarkDistances.put(start, level);
+    }
+  }
+
   @Override
   public String toString() {
     return "MyVertex [id=" + id + "]";
