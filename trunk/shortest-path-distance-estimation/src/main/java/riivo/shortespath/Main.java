@@ -10,8 +10,9 @@ import org.apache.commons.cli.PosixParser;
 public class Main {
 
   private String file;
-  private int LANDMARKS = 11;
-  private int TEST_SET_SIZE = 31;
+  private int landmarks = 11;
+  private int testSetSize = 15;
+  private int iterations = 2;
 
   /**
    * @param args
@@ -25,7 +26,7 @@ public class Main {
 
   private void run() {
 
-    GraphDistanceEstimation gde = new GraphDistanceEstimation(file, LANDMARKS, TEST_SET_SIZE);
+    GraphDistanceEstimation gde = new GraphDistanceEstimation(file, landmarks, testSetSize, iterations);
     gde.runExperiments();
 
   }
@@ -37,6 +38,7 @@ public class Main {
     options.addOption("file", true, "graph file");
     options.addOption("landmarks", true, "landmarks size, integer");
     options.addOption("test_set", true, "test_set size, integer");
+    options.addOption("iterations", true, "number of iterations for validation, integer");
 
     try {
       CommandLine line = parser.parse(options, args);
@@ -48,10 +50,13 @@ public class Main {
         System.exit(0);
       }
       if (line.hasOption("landmarks")) {
-        this.LANDMARKS = Integer.parseInt(line.getOptionValue("landmarks"));
+        this.landmarks = Integer.parseInt(line.getOptionValue("landmarks"));
       }
       if (line.hasOption("test_set")) {
-        this.TEST_SET_SIZE = Integer.parseInt(line.getOptionValue("test_set"));
+        this.testSetSize = Integer.parseInt(line.getOptionValue("test_set"));
+      }
+      if (line.hasOption("iterations")) {
+        this.iterations = Integer.parseInt(line.getOptionValue("iterations"));
       }
 
     } catch (ParseException exp) {

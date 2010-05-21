@@ -58,10 +58,7 @@
 		<dependency>
 			<groupId>jgrapht</groupId>
 			<artifactId>jgrapht</artifactId>
-			<version>0.8.2</version>
-			<scope>system</scope>
-			<optional>true</optional>
-			<systemPath>${basedir}\external\jgrapht-jdk1.6.jar</systemPath>
+			<version>0.8.2-RIIVO</version>
 		</dependency>
 		<dependency>
 			<groupId>jgraph</groupId>

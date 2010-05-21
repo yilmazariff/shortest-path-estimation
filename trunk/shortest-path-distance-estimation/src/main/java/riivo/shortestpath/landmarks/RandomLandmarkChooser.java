@@ -11,10 +11,14 @@ import riivo.shortestpath.graph.MyEdge;
 import riivo.shortestpath.graph.MyVertex;
 
 public class RandomLandmarkChooser implements LandmarkChooser {
-  private static final long RANDOM_SEED = 13371337l;
+  private static final long RANDOM_SEED = 13371337;
   static Random random = new Random(RANDOM_SEED);
 
   private static final Logger log = Logger.getLogger(RandomLandmarkChooser.class);
+
+  static {
+    log.warn("using perset seed for random");
+  }
 
   @Override
   public HashSet<MyVertex> choose(SimpleGraph<MyVertex, MyEdge> graph, int n) {
@@ -22,9 +26,8 @@ public class RandomLandmarkChooser implements LandmarkChooser {
     // find more determinisic solution, if O(landmarks)
     HashSet<MyVertex> landmarks = new HashSet<MyVertex>();
 
-    log.info("using preset random seed");
+    int size = vertexSet.size();
     while (landmarks.size() < n) {
-      int size = vertexSet.size();
       int item = random.nextInt(size);
       int i = 0;
       inner: for (MyVertex selected : vertexSet) {
