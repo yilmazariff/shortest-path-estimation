@@ -26,7 +26,7 @@ public class CentralityLandmarkChooser implements LandmarkChooser {
     new RandomLandmarkChooser().choose(graph, Math.min(n * SEED_SIZE, graph.vertexSet().size()));
 
     final List<Entry> centralityDegree = new ArrayList<Entry>();
-    ThreadPool tp = new ThreadPool(GraphDistanceEstimation.TP_SIZE);
+    ThreadPool tp = new ThreadPool(GraphDistanceEstimation.threads);
     for (final MyVertex myVertex : vertexSet) {
       tp.runTask(new Runnable() {
 
