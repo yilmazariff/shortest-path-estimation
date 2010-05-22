@@ -4,21 +4,13 @@ import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
 import org.jgrapht.graph.SimpleGraph;
 
 import riivo.shortestpath.graph.MyEdge;
 import riivo.shortestpath.graph.MyVertex;
 
 public class RandomLandmarkChooser implements LandmarkChooser {
-  private static final long RANDOM_SEED = 13371337;
-  static Random random = new Random(RANDOM_SEED);
-
-  private static final Logger log = Logger.getLogger(RandomLandmarkChooser.class);
-
-  static {
-    log.warn("using perset seed for random");
-  }
+  static Random random = new Random(System.currentTimeMillis());
 
   @Override
   public HashSet<MyVertex> choose(SimpleGraph<MyVertex, MyEdge> graph, int n) {

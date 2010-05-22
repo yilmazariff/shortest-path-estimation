@@ -21,7 +21,7 @@ import riivo.shortestpath.landmarks.RandomLandmarkChooser;
 
 public final class GraphDistanceEstimation {
 
-  public static final int TP_SIZE = 3;
+  public static int threads = 3;
 
   private static final Logger log = Logger.getLogger(GraphDistanceEstimation.class);
 
@@ -31,12 +31,13 @@ public final class GraphDistanceEstimation {
 
   private int iterations;
 
-  public GraphDistanceEstimation(String file, int landmarkCount, int testSetSize, int iterations) {
+  public GraphDistanceEstimation(String file, int landmarkCount, int testSetSize, int iterations, int threads) {
     super();
     this.file = file;
     this.landmarkCount = landmarkCount;
     this.testSetSize = testSetSize;
     this.iterations = iterations;
+    GraphDistanceEstimation.threads = threads;
   }
 
   /**
@@ -47,6 +48,7 @@ public final class GraphDistanceEstimation {
     log.debug("landmarks: " + landmarkCount);
     log.debug("testSetSize: " + testSetSize);
     log.debug("iteration: " + iterations);
+    log.debug("threads: " + threads);
 
     SimpleGraph<MyVertex, MyEdge> graph = GraphReader.read(this.file);
     log.info("Edges:" + graph.edgeSet().size());
@@ -56,9 +58,9 @@ public final class GraphDistanceEstimation {
     log.debug("graph done");
 
     final LandmarkChooser[] choosers =
-    new LandmarkChooser[] { new ConstrainedDegreeChooser(), new ConstrainedCentralityChooser(),
-                           new RandomLandmarkChooser(), new DegreeBasedLandmarkChooser(),
-                           new CentralityLandmarkChooser() };
+    new LandmarkChooser[] { new RandomLandmarkChooser(), new DegreeBasedLandmarkChooser(),
+                           new CentralityLandmarkChooser(), new ConstrainedDegreeChooser(),
+                           new ConstrainedCentralityChooser(), };
     for (LandmarkChooser landmarkChooser : choosers) {
       log.debug("starting: " + landmarkChooser.getName());
       clean(graph);
@@ -89,7 +91,7 @@ public final class GraphDistanceEstimation {
       log.debug("\t start new evaluation iteration");
       final DescriptiveStatistics stats = new DescriptiveStatistics();
       HashSet<MyVertex> testSet = pickRanomVertices(graph, testSetSize);
-      ThreadPool tp = new ThreadPool(TP_SIZE);
+      ThreadPool tp = new ThreadPool(threads);
       for (final MyVertex from : testSet) {
         for (final MyVertex to : testSet) {
           if (to.getId() > from.getId()) {
@@ -161,7 +163,7 @@ public final class GraphDistanceEstimation {
   private void index(final SimpleGraph<MyVertex, MyEdge> graph, LandmarkChooser chooser) {
     HashSet<MyVertex> landmarks = chooser.choose(graph, landmarkCount);
     int i = 0;
-    ThreadPool tp = new ThreadPool(TP_SIZE);
+    ThreadPool tp = new ThreadPool(threads);
     for (final MyVertex myVertex : landmarks) {
 
       i++;

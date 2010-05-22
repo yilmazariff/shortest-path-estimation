@@ -13,6 +13,7 @@ public class Main {
   private int landmarks = 11;
   private int testSetSize = 15;
   private int iterations = 2;
+  private int threads = 8;
 
   /**
    * @param args
@@ -26,7 +27,7 @@ public class Main {
 
   private void run() {
 
-    GraphDistanceEstimation gde = new GraphDistanceEstimation(file, landmarks, testSetSize, iterations);
+    GraphDistanceEstimation gde = new GraphDistanceEstimation(file, landmarks, testSetSize, iterations, threads);
     gde.runExperiments();
 
   }
@@ -39,6 +40,7 @@ public class Main {
     options.addOption("landmarks", true, "landmarks size, integer");
     options.addOption("test_set", true, "test_set size, integer");
     options.addOption("iterations", true, "number of iterations for validation, integer");
+    options.addOption("threads", true, "number of parallel threads");
 
     try {
       CommandLine line = parser.parse(options, args);
@@ -57,6 +59,9 @@ public class Main {
       }
       if (line.hasOption("iterations")) {
         this.iterations = Integer.parseInt(line.getOptionValue("iterations"));
+      }
+      if (line.hasOption("threads")) {
+        this.threads = Integer.parseInt(line.getOptionValue("threads"));
       }
 
     } catch (ParseException exp) {
